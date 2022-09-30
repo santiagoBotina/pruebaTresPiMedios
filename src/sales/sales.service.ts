@@ -21,7 +21,7 @@ export class SalesService {
         Roles: true,
       },
     });
-    if (user.Roles.name !== 'Admin') return false;
+    if (user?.Roles.name !== 'Admin') return false;
     return true;
   }
 

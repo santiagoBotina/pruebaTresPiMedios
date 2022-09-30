@@ -13,6 +13,7 @@ $ npm install
 
 ```bash
 $ docker compose up dev-db -d
+$ prisma migrate dev --name init
 $ npx prisma db seed
 ```
 
