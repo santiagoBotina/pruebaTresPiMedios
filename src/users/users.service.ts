@@ -13,18 +13,21 @@ export class UsersService {
 
   async checkRole(token): Promise<boolean> {
     //Buscar token en db para saber si el usuario es autorizado
-    const role = await this.prisma.roles.findUnique({
+    const user = await this.prisma.users.findUnique({
       where: {
         id: token,
       },
+      include: {
+        Roles: true,
+      },
     });
-    if (role.name !== 'Admin') return false;
+    if (user.Roles.name !== 'Admin') return false;
     return true;
   }
 
   async create(createUserDto: CreateUserDto, token: string) {
     const validation = await this.checkRole(token);
-    if (validation === false) return new UnauthorizedException();
+    if (validation === false) throw new UnauthorizedException();
     //Crear usuario - recibir dto
     if (!createUserDto) throw new BadRequestException();
     const result = await this.prisma.users.create({
@@ -39,7 +42,7 @@ export class UsersService {
 
   async findAll(token: string) {
     const validation = await this.checkRole(token);
-    if (validation === false) return new UnauthorizedException();
+    if (validation === false) throw new UnauthorizedException();
 
     const result = await this.prisma.users.findMany();
     return result;
@@ -47,7 +50,7 @@ export class UsersService {
 
   async updateRole(id: string, updateUserDto: UpdateRoleDto, token: string) {
     const validation = await this.checkRole(token);
-    if (validation === false) return new UnauthorizedException();
+    if (validation === false) throw new UnauthorizedException();
 
     const update = await this.prisma.users.update({
       where: { id },
@@ -60,7 +63,7 @@ export class UsersService {
 
   async remove(id: string, token: string) {
     const validation = await this.checkRole(token);
-    if (validation === false) return new UnauthorizedException();
+    if (validation === false) throw new UnauthorizedException();
 
     const result = await this.prisma.users.delete({
       where: { id },

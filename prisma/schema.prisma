@@ -19,14 +19,13 @@ model Products {
 }
 
 model Sales {
-  id          String    @id @default(uuid())
-  products_id Int
-  qty         Int
-  sale_at     DateTime  @default(now())
-  Products    Products? @relation(fields: [productsId], references: [id])
-  productsId  String?
-  Users       Users?    @relation(fields: [usersId], references: [id])
-  usersId     String?
+  id         String    @id @default(uuid())
+  qty        Int
+  sale_at    DateTime  @default(now())
+  Products   Products? @relation(fields: [productsId], references: [id])
+  productsId String?
+  Users      Users?    @relation(fields: [usersId], references: [id])
+  usersId    String?
 }
 
 model Users {

@@ -6,14 +6,24 @@ import { UnauthorizedException } from '@nestjs/common/exceptions';
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
-  async create(createProductDto: CreateProductDto, token: string) {
+
+  async checkRole(token): Promise<boolean> {
     //Buscar token en db para saber si el usuario es autorizado
-    const role = await this.prisma.roles.findUnique({
+    const user = await this.prisma.users.findUnique({
       where: {
         id: token,
       },
+      include: {
+        Roles: true,
+      },
     });
-    if (role.name !== 'Admin') throw new UnauthorizedException();
+    if (user.Roles.name !== 'Admin') return false;
+    return true;
+  }
+
+  async create(createProductDto: CreateProductDto, token: string) {
+    const validation = await this.checkRole(token);
+    if (validation === false) throw new UnauthorizedException();
     //Crear producto - recibir dto
     if (!createProductDto) throw new BadRequestException();
     const result = await this.prisma.products.create({

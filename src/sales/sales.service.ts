@@ -13,12 +13,15 @@ export class SalesService {
 
   async checkRole(token): Promise<boolean> {
     //Buscar token en db para saber si el usuario es autorizado
-    const role = await this.prisma.roles.findUnique({
+    const user = await this.prisma.users.findUnique({
       where: {
         id: token,
       },
+      include: {
+        Roles: true,
+      },
     });
-    if (role.name !== 'Admin') return false;
+    if (user.Roles.name !== 'Admin') return false;
     return true;
   }
 
@@ -42,7 +45,7 @@ export class SalesService {
 
   async update(id: string, updateSaleDto: UpdateSaleDto, token: string) {
     const validation = await this.checkRole(token);
-    if (validation === false) return new UnauthorizedException();
+    if (validation === false) throw new UnauthorizedException();
     const update = await this.prisma.sales.update({
       where: { id },
       data: updateSaleDto,
@@ -54,7 +57,7 @@ export class SalesService {
 
   async remove(id: string, token: string) {
     const validation = await this.checkRole(token);
-    if (validation === false) return new UnauthorizedException();
+    if (validation === false) throw new UnauthorizedException();
 
     const result = await this.prisma.sales.delete({
       where: { id },
